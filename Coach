@@ -1,0 +1,38 @@
+public class Coach extends Person {
+    private String specialization;
+    private int experienceYears;
+    private Team team;
+
+    public Coach(String name, int age, String specialization, int experienceYears) {
+        super(name, age);
+        if (experienceYears < 0) {
+            throw new IllegalArgumentException("Опыт не может быть отрицательным!");
+        }
+        this.specialization = specialization;
+        this.experienceYears = experienceYears;
+        this.team = null;
+    }
+
+    public String getSpecialization() { return this.specialization; }
+    public int getExperienceYears() { return this.experienceYears; }
+    public Team getTeam() { return this.team; }
+
+    public void setSpecialization(String specialization) { this.specialization = specialization; }
+    public void setExperienceYears(int years) {
+        if (years < 0) throw new IllegalArgumentException("Опыт не может быть отрицательным!");
+        this.experienceYears = years;
+    }
+    public void setTeam(Team team) { this.team = team; }
+
+    @Override
+    public String getRole() {
+        return "Тренер";
+    }
+
+    @Override
+    public String toString() {
+        String teamName = (team != null) ? team.getTeamName() : "Нет команды";
+        return super.toString() + " | Специализация: " + this.specialization
+                + " | Опыт: " + this.experienceYears + " лет | Команда: " + teamName;
+    }
+}
