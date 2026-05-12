@@ -1,0 +1,74 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Team {
+    private String teamName;
+    private String city;
+    private Coach coach;
+    private List<Player> players;
+
+    public Team(String teamName, String city) {
+        this.teamName = teamName;
+        this.city = city;
+        this.players = new ArrayList<>();
+        this.coach = null;
+    }
+
+    public String getTeamName() { return this.teamName; }
+    public String getCity() { return this.city; }
+    public Coach getCoach() { return this.coach; }
+    public List<Player> getPlayers() { return this.players; }
+
+    public void setTeamName(String teamName) { this.teamName = teamName; }
+    public void setCity(String city) { this.city = city; }
+
+    public void assignCoach(Coach coach) {
+        this.coach = coach;
+        coach.setTeam(this);
+        System.out.println("✅ Тренер " + coach.getName() + " назначен в команду " + this.teamName);
+    }
+
+    public void addPlayer(Player player) {
+        // Проверка: нет ли уже игрока с таким номером
+        for (Player p : players) {
+            if (p.getNumber() == player.getNumber()) {
+                throw new IllegalArgumentException(
+                    "❌ Игрок с номером #" + player.getNumber() + " уже есть в команде " + teamName + "!");
+            }
+        }
+        if (!players.contains(player)) {
+            players.add(player);
+            player.setCurrentTeam(this);
+        }
+    }
+
+    public void removePlayer(Player player) {
+        if (!players.remove(player)) {
+            throw new IllegalArgumentException("❌ Игрок " + player.getName() + " не найден в команде " + teamName);
+        }
+        player.setCurrentTeam(null);
+        System.out.println("🔄 Игрок " + player.getName() + " удалён из команды " + teamName);
+    }
+
+    public Player findPlayerByNumber(int number) {
+        for (Player p : players) {
+            if (p.getNumber() == number) return p;
+        }
+        return null;
+    }
+
+    public void printTeamInfo() {
+        System.out.println("\n========================================");
+        System.out.println("🏐 Команда: " + teamName + " | Город: " + city);
+        System.out.println("Тренер: " + (coach != null ? coach.getName() + " (" + coach.getSpecialization() + ")" : "Не назначен"));
+        System.out.println("Игроков: " + players.size());
+        if (players.isEmpty()) {
+            System.out.println("  (список пуст)");
+        } else {
+            for (Player p : players) {
+                System.out.println("  - " + p);
+            }
+        }
+        System.out.println("========================================");
+    }
+}
