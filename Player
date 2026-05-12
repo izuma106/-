@@ -1,0 +1,50 @@
+public class Player extends Person implements Transferable {
+    private int number;
+    private String position;
+    private Team currentTeam;
+
+    public Player(String name, int age, int number, String position) {
+        super(name, age);
+        this.number = number;
+        this.position = position;
+        this.currentTeam = null;
+    }
+
+    public int getNumber() { return this.number; }
+    public String getPosition() { return this.position; }
+    public Team getCurrentTeam() { return this.currentTeam; }
+
+    public void setNumber(int number) { this.number = number; }
+    public void setPosition(String position) { this.position = position; }
+    public void setCurrentTeam(Team team) { this.currentTeam = team; }
+
+    @Override
+    public String getRole() {
+        return "Игрок";
+    }
+
+    @Override
+    public void transfer(Team newTeam) {
+        if (this.currentTeam != null) {
+            this.currentTeam.removePlayer(this);
+        }
+        this.currentTeam = newTeam;
+        if (newTeam != null) {
+            newTeam.addPlayer(this);
+        }
+        System.out.println("✅ Игрок " + getName() + " переведён в команду: "
+                + (newTeam != null ? newTeam.getTeamName() : "без команды"));
+    }
+
+    @Override
+    public String getTransferInfo() {
+        String teamName = (currentTeam != null) ? currentTeam.getTeamName() : "Нет команды";
+        return getName() + " | Команда: " + teamName + " | Позиция: " + position;
+    }
+
+    @Override
+    public String toString() {
+        String teamName = (currentTeam != null) ? currentTeam.getTeamName() : "Нет команды";
+        return super.toString() + " | №" + this.number + " | " + this.position + " | Команда: " + teamName;
+    }
+}
