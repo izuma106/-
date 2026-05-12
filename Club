@@ -1,0 +1,88 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Club {
+    private String clubName;
+    private List<Team> teams;
+    private List<Player> allPlayers;
+    private List<Coach> allCoaches;
+
+    public Club(String clubName) {
+        this.clubName = clubName;
+        this.teams = new ArrayList<>();
+        this.allPlayers = new ArrayList<>();
+        this.allCoaches = new ArrayList<>();
+    }
+
+    public String getClubName() { return this.clubName; }
+    public List<Team> getTeams() { return this.teams; }
+    public List<Player> getAllPlayers() { return this.allPlayers; }
+    public List<Coach> getAllCoaches() { return this.allCoaches; }
+
+    public void addTeam(Team team) {
+        for (Team t : teams) {
+            if (t.getTeamName().equalsIgnoreCase(team.getTeamName())) {
+                throw new IllegalArgumentException("❌ Команда с именем '" + team.getTeamName() + "' уже существует!");
+            }
+        }
+        teams.add(team);
+        System.out.println("✅ Команда '" + team.getTeamName() + "' добавлена в клуб.");
+    }
+
+    public void addPlayer(Player player) {
+        allPlayers.add(player);
+        System.out.println("✅ Игрок " + player.getName() + " добавлен в клуб.");
+    }
+
+    public void addCoach(Coach coach) {
+        allCoaches.add(coach);
+        System.out.println("✅ Тренер " + coach.getName() + " добавлен в клуб.");
+    }
+
+    public Team findTeam(String name) {
+        for (Team t : teams) {
+            if (t.getTeamName().equalsIgnoreCase(name)) return t;
+        }
+        return null;
+    }
+
+    public Player findPlayer(String name) {
+        for (Player p : allPlayers) {
+            if (p.getName().equalsIgnoreCase(name)) return p;
+        }
+        return null;
+    }
+
+    public void printAllPlayers() {
+        System.out.println("\n📋 Все игроки клуба '" + clubName + "':");
+        if (allPlayers.isEmpty()) {
+            System.out.println("  (список пуст)");
+            return;
+        }
+        for (int i = 0; i < allPlayers.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + allPlayers.get(i));
+        }
+    }
+
+    public void printAllCoaches() {
+        System.out.println("\n👔 Все тренеры клуба '" + clubName + "':");
+        if (allCoaches.isEmpty()) {
+            System.out.println("  (список пуст)");
+            return;
+        }
+        for (int i = 0; i < allCoaches.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + allCoaches.get(i));
+        }
+    }
+
+    public void printAllTeams() {
+        System.out.println("\n🏆 Команды клуба '" + clubName + "':");
+        if (teams.isEmpty()) {
+            System.out.println("  (команд нет)");
+            return;
+        }
+        for (Team t : teams) {
+            t.printTeamInfo();
+        }
+    }
+}
