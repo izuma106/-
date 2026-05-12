@@ -1,0 +1,215 @@
+import java.util.Scanner;
+
+public class Main {
+    private static Club club = new Club("Волейбольный клуб 'Динамо'");
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        System.out.println("╔══════════════════════════════════════╗");
+        System.out.println("║  🏐 Управление волейбольным клубом   ║");
+        System.out.println("╚══════════════════════════════════════╝");
+
+        // Добавим тестовые данные при старте
+        loadSampleData();
+
+        boolean running = true;
+        while (running) {
+            printMenu();
+            int choice = readInt("Выберите пункт меню: ");
+            System.out.println();
+
+            try {
+                switch (choice) {
+                    case 1 -> addPlayer();
+                    case 2 -> addCoach();
+                    case 3 -> addTeam();
+                    case 4 -> addPlayerToTeam();
+                    case 5 -> transferPlayer();
+                    case 6 -> club.printAllPlayers();
+                    case 7 -> club.printAllCoaches();
+                    case 8 -> club.printAllTeams();
+                    case 9 -> removePlayerFromTeam();
+                    case 0 -> {
+                        System.out.println("👋 До свидания!");
+                        running = false;
+                    }
+                    default -> System.out.println("❌ Неверный пункт меню. Попробуйте снова.");
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            } catch (Exception e) {
+                System.out.println("⚠️ Произошла ошибка: " + e.getMessage());
+            } finally {
+                System.out.println();
+            }
+        }
+        scanner.close();
+    }
+
+    static void printMenu() {
+        System.out.println("──────────────────────────────────────");
+        System.out.println("  МЕНЮ:");
+        System.out.println("  1. Добавить игрока");
+        System.out.println("  2. Добавить тренера");
+        System.out.println("  3. Создать команду");
+        System.out.println("  4. Добавить игрока в команду");
+        System.out.println("  5. Перевести игрока в другую команду");
+        System.out.println("  6. Показать всех игроков");
+        System.out.println("  7. Показать всех тренеров");
+        System.out.println("  8. Показать все команды");
+        System.out.println("  9. Удалить игрока из команды");
+        System.out.println("  0. Выход");
+        System.out.println("──────────────────────────────────────");
+    }
+
+    static void addPlayer() {
+        System.out.println("--- Добавление игрока ---");
+        String name = readString("Имя игрока: ");
+        int age = readInt("Возраст: ");
+        int number = readInt("Номер футболки: ");
+        System.out.println("Позиции: 1-Либеро, 2-Нападающий, 3-Пасующий, 4-Блокирующий, 5-Диагональный");
+        int posChoice = readInt("Выберите позицию (1-5): ");
+        String[] positions = {"Либеро", "Нападающий", "Пасующий", "Блокирующий", "Диагональный"};
+        if (posChoice < 1 || posChoice > 5) throw new IllegalArgumentException("❌ Неверный выбор позиции!");
+        String position = positions[posChoice - 1];
+
+        Player player = new Player(name, age, number, position);
+        club.addPlayer(player);
+    }
+
+    static void addCoach() {
+        System.out.println("--- Добавление тренера ---");
+        String name = readString("Имя тренера: ");
+        int age = readInt("Возраст: ");
+        String spec = readString("Специализация (например: Атака, Подача, Защита): ");
+        int experience = readInt("Лет опыта: ");
+
+        Coach coach = new Coach(name, age, spec, experience);
+        club.addCoach(coach);
+    }
+
+    static void addTeam() {
+        System.out.println("--- Создание команды ---");
+        String teamName = readString("Название команды: ");
+        String city = readString("Город: ");
+
+        Team team = new Team(teamName, city);
+        club.addTeam(team);
+
+        // Назначить тренера?
+        club.printAllCoaches();
+        String coachName = readString("Имя тренера для назначения (или Enter чтобы пропустить): ");
+        if (!coachName.isBlank()) {
+            Coach coach = null;
+            for (Coach c : club.getAllCoaches()) {
+                if (c.getName().equalsIgnoreCase(coachName)) { coach = c; break; }
+            }
+            if (coach != null) team.assignCoach(coach);
+            else System.out.println("⚠️ Тренер не найден.");
+        }
+    }
+
+    static void addPlayerToTeam() {
+        System.out.println("--- Добавить игрока в команду ---");
+        club.printAllPlayers();
+        String playerName = readString("Имя игрока: ");
+        Player player = club.findPlayer(playerName);
+        if (player == null) throw new IllegalArgumentException("❌ Игрок '" + playerName + "' не найден!");
+
+        club.printAllTeams();
+        String teamName = readString("Название команды: ");
+        Team team = club.findTeam(teamName);
+        if (team == null) throw new IllegalArgumentException("❌ Команда '" + teamName + "' не найдена!");
+
+        team.addPlayer(player);
+        System.out.println("✅ " + player.getName() + " добавлен в команду " + team.getTeamName());
+    }
+
+    static void transferPlayer() {
+        System.out.println("--- Перевод игрока ---");
+        String playerName = readString("Имя игрока: ");
+        Player player = club.findPlayer(playerName);
+        if (player == null) throw new IllegalArgumentException("❌ Игрок '" + playerName + "' не найден!");
+
+        System.out.println("Трансферная информация: " + player.getTransferInfo());
+
+        String teamName = readString("В какую команду перевести: ");
+        Team team = club.findTeam(teamName);
+        if (team == null) throw new IllegalArgumentException("❌ Команда '" + teamName + "' не найдена!");
+
+        player.transfer(team);
+    }
+
+    static void removePlayerFromTeam() {
+        System.out.println("--- Удаление игрока из команды ---");
+        String teamName = readString("Название команды: ");
+        Team team = club.findTeam(teamName);
+        if (team == null) throw new IllegalArgumentException("❌ Команда не найдена!");
+
+        team.printTeamInfo();
+        String playerName = readString("Имя игрока для удаления: ");
+
+        // Ищем по имени
+        Player player = null;
+        for (Player p : team.getPlayers()) {
+            if (p.getName().equalsIgnoreCase(playerName)) { player = p; break; }
+        }
+        if (player == null) throw new IllegalArgumentException("❌ Игрок не найден в этой команде!");
+        team.removePlayer(player);
+    }
+
+    // ─── Вспомогательные методы ───────────────────────────────────────────────
+
+    static int readInt(String prompt) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                String line = scanner.nextLine().trim();
+                return Integer.parseInt(line);
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Введите целое число!");
+            }
+        }
+    }
+
+    static String readString(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine().trim();
+    }
+
+    // Тестовые данные
+    static void loadSampleData() {
+        try {
+            Team teamA = new Team("Гром", "Бишкек");
+            Team teamB = new Team("Молния", "Ош");
+            club.addTeam(teamA);
+            club.addTeam(teamB);
+
+            Coach c1 = new Coach("Алмаз Бектенов", 45, "Атака", 15);
+            Coach c2 = new Coach("Нурлан Жумалиев", 38, "Защита", 10);
+            club.addCoach(c1);
+            club.addCoach(c2);
+            teamA.assignCoach(c1);
+            teamB.assignCoach(c2);
+
+            Player p1 = new Player("Асыл Омуров", 22, 7, "Нападающий");
+            Player p2 = new Player("Бекзод Мамытов", 24, 11, "Пасующий");
+            Player p3 = new Player("Санжар Токтомаматов", 21, 3, "Либеро");
+            Player p4 = new Player("Даниял Эргешов", 23, 5, "Блокирующий");
+
+            club.addPlayer(p1);
+            club.addPlayer(p2);
+            club.addPlayer(p3);
+            club.addPlayer(p4);
+
+            teamA.addPlayer(p1);
+            teamA.addPlayer(p2);
+            teamB.addPlayer(p3);
+            teamB.addPlayer(p4);
+
+            System.out.println("\n✅ Тестовые данные загружены!\n");
+        } catch (Exception e) {
+            System.out.println("Ошибка загрузки данных: " + e.getMessage());
+        }
+    }
+}
